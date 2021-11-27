@@ -1,0 +1,102 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+     
+        {
+            "name": "cli args parser",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/cli/scheduler_cli/app.py",
+            "args": [
+                "-n", "office-hours-scheduler",
+                "-a", "disable",
+                "-e", "-g",
+                "-t", "scheduled-dev", "scheduled-tst",
+            ],
+            "console": "integratedTerminal"
+        },
+        {
+            "name": "cli input parser",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/cli/scheduler_cli/app.py",
+            "console": "integratedTerminal"
+        },
+        {
+            "name": "lambda api",
+            "type": "aws-sam",
+            "request": "direct-invoke",
+            "invokeTarget": {
+                "target": "api",
+                "templatePath": "${workspaceFolder}/app/template.yaml",
+                "logicalId": "SchedulerFunction"
+            },
+            "api": {
+                "path": "/api",
+                "httpMethod": "post",
+                "payload": {
+                    "json": {
+                        "scheduler": {
+                            "action": "start",
+                            "resources": {
+                                "asg": "true",
+                                "ec2": "true",
+                                "rds": "false"
+                            },
+                            "tags": [
+                                "scheduled-dev",
+                                "scheduled-tst"
+                            ]
+                        }
+                    }
+                }
+            },
+            "lambda": {
+                "runtime": "python3.9",
+                "environmentVariables": {
+                    "ENV_VAR": "api"
+                }
+            },
+            "aws": {
+                "region": "ap-southeast-2"
+            }
+        },
+        {
+            "name": "lambda function",
+            "type": "aws-sam",
+            "request": "direct-invoke",
+            "invokeTarget": {
+                "target": "template",
+                "templatePath": "${workspaceFolder}/app/template.yaml",
+                "logicalId": "SchedulerFunction"
+            },
+            "lambda": {
+                "payload": {
+                    "json": {
+                        "scheduler": {
+                            "action": "disable",
+                            "resources": {
+                                "asg": "true",
+                                "ec2": "true",
+                                "rds": "true"
+                            },
+                            "tags": [
+                                "scheduled-dev",
+                                "scheduled-tst"
+                            ]
+                        }
+                    }
+                },
+                "environmentVariables": {
+                    "ENV_VAR": "func"
+                }
+            },
+            "aws": {
+                "region": "ap-southeast-2"
+            }
+        }
+    ]
+}

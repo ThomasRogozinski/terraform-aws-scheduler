@@ -1,0 +1,13 @@
+{
+    "scheduler": {
+        "action": "stop",
+        "resources": {
+            "asg": true,
+            "ec2": true,
+            "rds": false
+        },
+        "tags": [
+            "scheduled-prd"
+        ]
+    }
+}

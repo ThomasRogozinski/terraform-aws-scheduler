@@ -1,0 +1,47 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  aws scheduler
+
+Parameters:
+  EnvVar:
+    Type: String
+    Default: ""
+
+# More info about Globals: https://github.com/awslabs/serverless-application-model/blob/master/docs/globals.rst
+Globals:
+  Function:
+    Timeout: 500 
+
+Resources:
+  SchedulerFunction:
+    Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+    Properties:
+      CodeUri: ./
+      Handler: aws_scheduler.app.lambda_handler
+      Runtime: python3.9
+      Architectures:
+        - x86_64
+      Events:
+        Run:
+          Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
+          Properties:
+            Path: /api
+            Method: post 
+      Environment:
+        Variables:
+          ENV_VAR: !Ref EnvVar 
+
+Outputs:
+  # ServerlessRestApi is an implicit API created out of Events key under Serverless::Function
+  # Find out more about other implicit resources you can reference within SAM
+  # https://github.com/awslabs/serverless-application-model/blob/master/docs/internals/generated_resources.rst#api
+  SchedulerApi:
+    Description: "API Gateway endpoint URL for Scheduler run function"
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/run/"
+  SchedulerFunction:
+    Description: "Scheduler Lambda Function ARN"
+    Value: !GetAtt SchedulerFunction.Arn
+  SchedulerFunctionIamRole:
+    Description: "Implicit IAM Role created for Scheduler function"
+    Value: !GetAtt SchedulerFunctionRole.Arn

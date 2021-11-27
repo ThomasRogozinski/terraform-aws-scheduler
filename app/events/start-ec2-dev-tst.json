@@ -1,0 +1,14 @@
+{
+    "scheduler": {
+        "action": "start",
+        "resources": {
+            "asg": true,
+            "ec2": true,
+            "rds": false
+        },
+        "tags": [
+            "scheduled-dev",
+            "scheduled-tst"
+        ]
+    }
+}
